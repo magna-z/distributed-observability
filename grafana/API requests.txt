@@ -1,0 +1,10 @@
+SELECT
+  $__timeInterval(timestamp) AS timestamp,
+  regexpExtract(data['request'], '^([A-Z]+\\s\\/[^?]+)[?\\s]') AS request,
+  count(request) AS value
+FROM logs
+WHERE $__timeFilter(timestamp)
+  AND app = 'nginx'
+  AND data['request'] LIKE '%/api/%'
+GROUP BY timestamp, request
+ORDER BY timestamp;

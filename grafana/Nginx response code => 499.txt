@@ -1,0 +1,11 @@
+SELECT
+  $__timeInterval(timestamp) AS timestamp,
+  concat(regexpExtract(data['request'], '^([A-Z]+\\s\\/[^?]+)[?\\s]'), ' > ', data['status']) AS request,
+  count(data['status']) as value
+FROM logs
+WHERE $__timeFilter(timestamp)
+  AND app = 'nginx'
+  AND level = 'info'
+  AND toInt32OrZero(data['status']) >= 499
+GROUP BY timestamp, request
+ORDER BY timestamp;

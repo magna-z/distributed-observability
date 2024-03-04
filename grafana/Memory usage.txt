@@ -1,0 +1,31 @@
+# used
+SELECT timestamp, value
+FROM metrics
+WHERE $__timeFilter(timestamp)
+  AND name = 'memory_used_bytes'
+  AND host = '${host}'
+ORDER BY timestamp;
+
+# buffers
+SELECT timestamp, value
+FROM metrics
+WHERE $__timeFilter(timestamp)
+  AND name = 'memory_buffers_bytes'
+  AND host = '${host}'
+ORDER BY timestamp;
+
+# cached
+SELECT timestamp, value
+FROM metrics
+WHERE $__timeFilter(timestamp)
+  AND name = 'memory_cached_bytes'
+  AND host = '${host}'
+ORDER BY timestamp;
+
+# shared
+SELECT timestamp, value
+FROM metrics
+WHERE $__timeFilter(timestamp)
+  AND name = 'memory_shared_bytes'
+  AND host = '${host}'
+ORDER BY timestamp;

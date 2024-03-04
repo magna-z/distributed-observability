@@ -1,0 +1,24 @@
+[sources.services_logs]
+  type = "docker_logs"
+  include_containers = [ "frontend", "backend" ]
+
+[transforms.services_logs_remap]
+  type = "remap"
+  inputs = [ "services_logs" ]
+  source = '''
+    .app, .err = "service-" + .container_name
+    if .err != null { log(.err, "error") }
+
+    .host = get_hostname!()
+
+    .data = parse_json!(.message)
+    .data.source = "docker"
+    .data.container_id = .container_id
+    .data = map_values(.data) -> |value| { to_string!(value) }
+
+    .timestamp = parse_timestamp(.data.time, "%FT%TZ +0300") ?? .timestamp
+
+    .level = .data.level || null
+
+    .message = .data.message || null
+  '''

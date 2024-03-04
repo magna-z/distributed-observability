@@ -1,0 +1,7 @@
+SELECT timestamp AS log_time, message AS log, level, data
+FROM logs
+WHERE $__timeFilter(timestamp)
+  AND app = 'dmesg'
+  AND host = '${host}'
+ORDER BY timestamp DESC
+LIMIT ${dmesg_logs_limit};

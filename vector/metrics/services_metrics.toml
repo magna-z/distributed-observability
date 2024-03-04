@@ -1,0 +1,6 @@
+[sources.services_metrics]
+  type = "prometheus_scrape"
+  scrape_interval_secs = 10
+  endpoints = [ "http://127.0.0.1:8081/metrics", "http://127.0.0.1:8082/metrics" ]
+  instance_tag = "instance"
+  endpoint_tag = "endpoint"

@@ -1,0 +1,11 @@
+SELECT
+  $__timeInterval(timestamp) AS timestamp,
+  data['status'] as status,
+  count(status) as code
+FROM logs
+WHERE $__timeFilter(timestamp)
+  AND app = 'nginx'
+  AND level = 'info'
+  AND data['status'] != ''
+GROUP BY timestamp, status
+ORDER BY timestamp;

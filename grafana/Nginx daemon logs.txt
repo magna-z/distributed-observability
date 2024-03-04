@@ -1,0 +1,7 @@
+SELECT timestamp AS log_time, message AS log, level, host, data
+FROM logs
+WHERE $__timeFilter(timestamp)
+  AND app = 'nginx'
+  AND level != 'info'
+ORDER BY timestamp DESC
+LIMIT ${nginx_logs_limit};

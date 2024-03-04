@@ -1,0 +1,5 @@
+SELECT DISTINCT host
+FROM metrics
+WHERE name = 'build_info'
+ORDER BY host
+SETTINGS use_query_cache = 1;

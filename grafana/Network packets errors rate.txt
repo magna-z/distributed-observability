@@ -1,0 +1,45 @@
+# receive
+SELECT timestamp, sum(delta) / $__interval_s AS value
+FROM (
+  SELECT
+    timestamp,
+    value AS current,
+    lagInFrame(current) OVER (ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS previous,
+    current - previous AS delta
+  FROM (
+    SELECT timestamp, value
+    FROM metrics
+    WHERE name = 'network_receive_errs_total'
+      AND tags['device'] = 'eth0'
+      AND host = '${host}'
+      AND timestamp >= addSeconds($__fromTime, -$__interval_s)
+      AND timestamp <= toStartOfInterval($__toTime, INTERVAL $__interval_s SECOND)
+    ORDER BY timestamp
+  )
+)
+WHERE $__timeFilter(timestamp)
+GROUP BY timestamp
+ORDER BY timestamp;
+
+# transmit
+SELECT timestamp, sum(delta) / $__interval_s AS value
+FROM (
+  SELECT
+    timestamp,
+    value AS current,
+    lagInFrame(current) OVER (ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS previous,
+    current - previous AS delta
+  FROM (
+    SELECT timestamp, value
+    FROM metrics
+    WHERE name = 'network_transmit_errs_total'
+      AND tags['device'] = 'eth0'
+      AND host = '${host}'
+      AND timestamp >= addSeconds($__fromTime, -$__interval_s)
+      AND timestamp <= toStartOfInterval($__toTime, INTERVAL $__interval_s SECOND)
+    ORDER BY timestamp
+  )
+)
+WHERE $__timeFilter(timestamp)
+GROUP BY timestamp
+ORDER BY timestamp;

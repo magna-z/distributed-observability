@@ -1,0 +1,11 @@
+[sinks.logs_to_clickhouse]
+  type = "clickhouse"
+  endpoint = "http://clickhouse-01.local:8123"
+  table = "logs"
+  inputs = [ "*_logs_remap" ]
+  compression = "none"
+  auth.strategy = "basic"
+  auth.user = "vector"
+  auth.password = "P@ssw0rd"
+  encoding.timestamp_format = "unix"
+  encoding.only_fields = [ "timestamp", "level", "message", "app", "host", "data" ]

@@ -1,0 +1,24 @@
+SELECT
+  $__timeInterval(timestamp) AS timestamp,
+  round(sum(delta) / $__interval_s, 2) AS value,
+  method, code
+FROM (
+  SELECT
+    timestamp,
+    value AS current,
+    lagInFrame(current) OVER (ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS previous,
+    current - previous AS delta,
+    host, method, code
+  FROM (
+    SELECT timestamp, value, host, upper(tags['method']) AS method, tags['code'] AS code
+    FROM metrics
+    WHERE name = 'http_api_http_requests_total'
+      AND tags['service'] = 'backend'
+      AND timestamp >= addSeconds($__fromTime, -$__interval_s)
+      AND timestamp <= toStartOfInterval($__toTime, INTERVAL $__interval_s SECOND)
+    ORDER BY host, method, code, timestamp
+  )
+)
+WHERE $__timeFilter(timestamp)
+GROUP BY timestamp, method, code
+ORDER BY timestamp;

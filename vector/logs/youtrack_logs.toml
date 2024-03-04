@@ -1,0 +1,21 @@
+[sources.youtrack_logs]
+  type = "file"
+  include = [ "/host/opt/youtrack/logs/*.log" ]
+  [sources.youtrack_logs.multiline]
+    start_pattern = '^\[[^\]]+\]\s+\d{2}:\d{2}:\d{2},\d{3}\s+[A-Z]+\s+'
+    condition_pattern = '^\[[^\]]+\]\s+\d{2}:\d{2}:\d{2},\d{3}\s+[A-Z]+\s+'
+    mode = "halt_before"
+    timeout_ms = 500
+
+[transforms.youtrack_logs_remap]
+  type = "remap"
+  inputs = [ "youtrack_logs" ]
+  source = '''    
+    .data = parse_regex!(.message, r'^\[(?P<time>\d+-\d+-\d+\s+\d+:\d+:\d+),\d+\]\s+\d+:\d+:\d+,\d+\s+(?P<severity>[A-Z]+)\s+\[.*\]\s+\[.*\s+\]\s+\[(?P<user>.*\W\.*)\]\s+(?P<title>.*)')
+    .timestamp = parse_timestamp!(.data.time, "%F %T")
+    .level = downcase(.data.severity)
+    .app = "youtrack"
+    .host = get_hostname!()
+    .message = replace!(.message, r'\[[^\]]+\]', "")
+    .message = replace(.message, r'\s+\d+:\d+:\d+,\d+\s+[A-Z]+\s+', "")
+  '''

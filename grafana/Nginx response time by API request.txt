@@ -1,0 +1,9 @@
+SELECT
+  timestamp,
+  regexpExtract(data['request_uri'], '^([^?]+)') AS request,
+  toFloat64OrZero(data['request_time']) AS value
+FROM logs
+WHERE $__timeFilter(timestamp)
+  AND app = 'nginx'
+  AND data['request'] LIKE '%/api/%'
+ORDER BY timestamp;

@@ -1,0 +1,15 @@
+SELECT $__timeInterval(timestamp) AS timestamp, round(sum(delta) / $__interval_s, 1) AS value, host
+FROM (
+  SELECT host, timestamp, value AS current, lagInFrame(current) OVER (ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS previous, current - previous AS delta
+  FROM (
+    SELECT host, timestamp, value
+    FROM metrics
+    WHERE name = 'http_requests_total'
+      AND timestamp >= addSeconds($__fromTime, -$__interval_s)
+      AND timestamp <= toStartOfInterval($__toTime, INTERVAL $__interval_s SECOND)
+    ORDER BY host, timestamp
+  )
+)
+WHERE $__timeFilter(timestamp)
+GROUP BY timestamp, host
+ORDER BY timestamp, host;

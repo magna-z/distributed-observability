@@ -1,0 +1,8 @@
+SELECT toUnixTimestamp(value) * 1000 as value
+FROM metrics
+WHERE $__timeFilter(timestamp)
+  AND host = '${host}'
+  AND name = 'boot_time'
+ORDER BY timestamp DESC
+LIMIT 1
+SETTINGS use_query_cache = 1;

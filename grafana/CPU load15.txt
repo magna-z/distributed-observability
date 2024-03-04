@@ -1,0 +1,6 @@
+SELECT timestamp, value
+FROM metrics
+WHERE $__timeFilter(timestamp)
+  AND host = '${host}'
+  AND name = 'load15'
+ORDER BY timestamp;

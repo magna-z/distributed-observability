@@ -1,0 +1,13 @@
+# waiting
+SELECT $__timeInterval(timestamp) AS timestamp, sum(value) as waiting
+FROM metrics
+WHERE $__timeFilter(timestamp) AND name = 'connections_waiting'
+GROUP BY timestamp
+ORDER BY timestamp;
+
+# reading
+SELECT $__timeInterval(timestamp) AS timestamp, sum(value) as reading
+FROM metrics
+WHERE $__timeFilter(timestamp) AND name = 'connections_reading'
+GROUP BY timestamp
+ORDER BY timestamp;

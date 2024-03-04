@@ -1,0 +1,6 @@
+SELECT timestamp, value
+FROM metrics
+WHERE $__timeFilter(timestamp)
+  AND name = 'memory_free_bytes'
+  AND host = '${host}'
+ORDER BY timestamp;

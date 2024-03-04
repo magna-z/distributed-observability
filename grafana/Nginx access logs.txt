@@ -1,0 +1,22 @@
+SELECT log_time, log, log_level AS level, host, data
+FROM (
+  SELECT
+    timestamp AS log_time,
+    message AS log,
+    multiIf(
+      toInt32OrZero(data['status']) >= 400 AND toInt32OrZero(data['status']) < 500,
+      'warning',
+      toInt32OrZero(data['status']) >= 500,
+      'error',
+      'info'
+    ) AS log_level,
+    host,
+    data
+  FROM logs
+  WHERE $__timeFilter(timestamp)
+    AND app = 'nginx'
+    AND level = 'info'
+    AND message LIKE '${nginx_logs_filter}'
+  ORDER BY timestamp DESC
+  LIMIT ${nginx_logs_limit}
+);

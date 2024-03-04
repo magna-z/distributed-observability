@@ -1,0 +1,21 @@
+SELECT log_time, log, log_level AS level, host, data
+FROM (
+  SELECT
+    timestamp AS log_time,
+    (message = 'request complete') ? concat(trimBoth(message), ': ', concatWithSeparator(' > ', data['remote_addr'], data['uri'], data['resp_status'])) : message AS log,
+    multiIf(
+      toInt32OrZero(data['resp_status']) >= 400 AND toInt32OrZero(data['resp_status']) < 500,
+      'warning',
+      toInt32OrZero(data['resp_status']) >= 500,
+      'error',
+      level
+    ) AS log_level,
+    host,
+    data
+  FROM logs
+  WHERE $__timeFilter(timestamp)
+  AND app = 'backend'
+  AND log LIKE '${backend_logs_filter}'
+  ORDER BY timestamp DESC
+  LIMIT ${backend_logs_limit}
+);

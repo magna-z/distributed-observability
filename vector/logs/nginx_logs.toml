@@ -1,0 +1,32 @@
+[sources.nginx_logs]
+  type = "journald"
+  journal_directory = "/host/var/log/journal"
+  since_now = true
+  include_units = [ "nginx.service" ]
+
+[transforms.nginx_logs_remap]
+  type = "remap"
+  inputs = [ "nginx_logs" ]
+  source = '''
+    .app = "nginx"
+    .level = "info"
+    .host = get_hostname!()
+
+    .data = parse_json(.message) ?? parse_regex(.message, r'^(?P<datetime>\d{4}\/\d{2}\/\d{2}\ (\d{2}:?){3}) \[(?P<severity>\w+)\] (?P<pid>\d+)#(?P<tid>\d+): (?P<message>.+)$') ?? {}
+    .data.source = "journald"
+    .data = map_values(.data) -> |value| { to_string!(value) }
+
+    if exists(.data.severity) {
+      .level = .data.severity
+      del(.data.severity)
+    }
+
+    .timestamp = parse_timestamp(.data.time_local, "%d/%b/%Y:%T %z") ?? parse_timestamp(.data.timestamp, "%FT%TZ") ?? .timestamp
+
+    .message, .err = .data.remote_addr + " - " + .data.request + " - " + .data.status
+    if .err != null { log(.err, "error") }
+    if exists(.data.message) {
+      .message = .data.message
+      del(.data.message)
+    }
+  '''

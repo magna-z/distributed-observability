@@ -1,0 +1,7 @@
+SELECT timestamp, value
+FROM metrics
+WHERE $__timeFilter(timestamp)
+  AND name = 'filesystem_used_ratio'
+  AND tags['device'] = '/dev/vda2'
+  AND host = '${host}'
+ORDER BY timestamp;

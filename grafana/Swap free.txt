@@ -1,0 +1,7 @@
+SELECT value
+FROM metrics
+WHERE $__timeFilter(timestamp)
+  AND name = 'memory_swap_free_bytes'
+  AND host = '${host}'
+ORDER BY timestamp DESC
+LIMIT 1;

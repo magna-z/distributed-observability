@@ -1,0 +1,7 @@
+SELECT host, value
+FROM metrics
+WHERE $__timeFilter(timestamp)
+  AND host = '${host}'
+  AND name = 'uptime'
+ORDER BY timestamp DESC
+LIMIT 1;

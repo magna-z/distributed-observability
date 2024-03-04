@@ -1,0 +1,8 @@
+SELECT value
+FROM metrics
+WHERE $__timeFilter(timestamp)
+  AND name = 'memory_total_bytes'
+  AND host = '${host}'
+ORDER BY timestamp DESC
+LIMIT 1
+SETTINGS use_query_cache = 1;

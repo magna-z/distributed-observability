@@ -1,0 +1,14 @@
+[sources.dmesg_logs]
+  type = "journald"
+  journal_directory = "/host/var/log/journal"
+  extra_args = [ "--identifier=kernel" ]
+
+[transforms.dmesg_logs_remap]
+  type = "remap"
+  inputs = [ "dmesg_logs" ]
+  source = '''
+    .app = "dmesg"
+    .level = "info"
+    .host = get_hostname!()
+    .data.source = "journald"
+  '''

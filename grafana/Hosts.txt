@@ -1,0 +1,69 @@
+# os
+SELECT host, os
+FROM (
+  SELECT max(timestamp), host, tags['os'] AS os
+  FROM metrics
+  WHERE $__timeFilter(timestamp) AND name = 'engine_daemon_engine_info'
+  GROUP BY host, os
+  ORDER BY host
+) SETTINGS use_query_cache = 1;
+
+# cpus
+SELECT host, cpus
+FROM (
+  SELECT max(timestamp), host, value AS cpus
+  FROM metrics
+  WHERE $__timeFilter(timestamp) AND name = 'logical_cpus'
+  GROUP BY host, cpus
+  ORDER BY host
+) SETTINGS use_query_cache = 1;
+
+# memory_size
+SELECT host, memory_size
+FROM (
+  SELECT max(timestamp), host, value AS memory_size
+  FROM metrics
+  WHERE $__timeFilter(timestamp) AND name = 'memory_total_bytes'
+  GROUP BY host, memory_size
+  ORDER BY host
+) SETTINGS use_query_cache = 1;
+
+# disk_size
+SELECT host, disk_size
+FROM (
+  SELECT max(timestamp), host, value AS disk_size
+  FROM metrics
+  WHERE $__timeFilter(timestamp) AND name = 'filesystem_total_bytes' AND name = 'filesystem_total_bytes' AND tags['device'] = '/dev/vda2'
+  GROUP BY host, disk_size
+  ORDER BY host
+) SETTINGS use_query_cache = 1;
+
+# boot_time
+SELECT host, boot_time
+FROM (
+  SELECT max(timestamp), host, last_value(toUnixTimestamp(value) * 1000) AS boot_time
+  FROM metrics
+  WHERE $__timeFilter(timestamp) AND name = 'boot_time'
+  GROUP BY host
+  ORDER BY host
+) SETTINGS use_query_cache = 1;
+
+# uptime
+SELECT host, uptime
+FROM (
+  SELECT max(timestamp), host, last_value(value) AS uptime
+  FROM metrics
+  WHERE $__timeFilter(timestamp) AND name = 'uptime'
+  GROUP BY host
+  ORDER BY host
+);
+
+# scrape_lag
+SELECT host, scrape_lag
+FROM (
+  SELECT max(timestamp), host, now() - max(timestamp) AS scrape_lag
+  FROM metrics
+  WHERE $__timeFilter(timestamp) AND name = 'build_info'
+  GROUP BY host
+  ORDER BY host
+);

@@ -1,0 +1,17 @@
+<clickhouse>
+    <listen_host>0.0.0.0</listen_host>
+    <listen_try>1</listen_try>
+
+    <http_port>8123</http_port>
+    <tcp_port_secure>9440</tcp_port_secure>
+
+    <openSSL>
+        <server>
+            <caConfig>/etc/clickhouse/ssl/ca.crt</caConfig>
+            <certificateFile>/etc/clickhouse/ssl/server.crt</certificateFile>
+            <privateKeyFile>/etc/clickhouse/ssl/server.key</privateKeyFile>
+            <dhParamsFile>/etc/clickhouse/ssl/dhparam.pem</dhParamsFile>
+            <verificationMode>strict</verificationMode>
+        </server>
+    </openSSL>
+</clickhouse>

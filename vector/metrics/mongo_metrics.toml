@@ -1,0 +1,4 @@
+[sources.mongo_metrics]
+  type = "mongodb_metrics"
+  scrape_interval_secs = 10
+  endpoints = [ "mongodb://vector:vector@127.0.0.1:27017" ]

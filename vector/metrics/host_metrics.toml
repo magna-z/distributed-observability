@@ -1,0 +1,7 @@
+[sources.host_metrics]
+  type = "host_metrics"
+  scrape_interval_secs = 10
+  collectors = [ "cpu", "disk", "filesystem", "load", "host", "memory", "network" ]
+  network.devices.includes = [ "eth*" ]
+  filesystem.filesystems.includes = [ "ext*" ]
+  filesystem.mountpoints.includes = [ "/host" ]

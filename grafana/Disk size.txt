@@ -1,0 +1,9 @@
+SELECT value
+FROM metrics
+WHERE $__timeFilter(timestamp)
+  AND name = 'filesystem_total_bytes'
+  AND tags['device'] = '/dev/vda2'
+  AND host = '${host}'
+ORDER BY timestamp DESC
+LIMIT 1
+SETTINGS use_query_cache = 1;

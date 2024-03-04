@@ -1,0 +1,12 @@
+SELECT $__timeInterval(timestamp) AS timestamp, host, sum(value) as value
+FROM (
+  SELECT timestamp, host, value
+  FROM metrics
+  WHERE name = 'process_resident_memory_bytes'
+    AND tags['endpoint'] = 'http://127.0.0.1:8011/metrics'
+    AND timestamp >= addSeconds($__fromTime, -$__interval_s)
+    AND timestamp <= toStartOfInterval($__toTime, INTERVAL $__interval_s SECOND)
+  ORDER BY timestamp
+)
+GROUP BY timestamp, host
+ORDER BY timestamp;

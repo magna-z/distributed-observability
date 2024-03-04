@@ -1,0 +1,51 @@
+[transforms.metrics_to_log]
+  type = "metric_to_log"
+  inputs = [ "*_metrics" ]
+
+[transforms.metrics_remap]
+  type = "remap"
+  inputs = [ "metrics_to_log" ]
+  source = '''
+    .host = get_hostname!()
+    .tags.instance = .host
+
+    if exists(.gauge) {
+      .type = "gauge"
+      .value = .gauge.value
+    }
+
+    if exists(.counter) {
+      .type = "counter"
+      .value = .counter.value
+    }
+
+    if exists(.aggregated_histogram) {
+      .type = "histogram"
+      .value = .aggregated_histogram.count
+      .buckets = {}
+      for_each(array!(.aggregated_histogram.buckets)) -> |_index, value| {
+        .buckets = set!(.buckets, [ to_string!(value.upper_limit || 0) ], value.count)
+      }
+    }
+
+    if exists(.aggregated_summary) {
+      .type = "summary"
+      .value = .aggregated_summary.count
+      .quantiles = {}
+      for_each(array!(.aggregated_summary.quantiles)) -> |_index, value| {
+        .quantiles = set!(.quantiles, [ to_string!(value.quantile || 0) ], value.value)
+      }
+    }
+  '''
+
+[sinks.metrics_to_clickhouse]
+  type = "clickhouse"
+  endpoint = "http://clickhouse-01.local:8123"
+  table = "metrics"
+  inputs = [ "metrics_remap" ]
+  compression = "none"
+  auth.strategy = "basic"
+  auth.user = "vector"
+  auth.password = "P@ssw0rd"
+  encoding.timestamp_format = "unix"
+  encoding.only_fields = [ "timestamp", "name", "type", "value", "buckets", "quantiles", "host", "tags" ]
